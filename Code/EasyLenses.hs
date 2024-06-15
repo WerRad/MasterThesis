@@ -13,15 +13,15 @@ view :: Lens s a -> s -> a
 view (Lens get _) = get
 
 set :: Lens s a -> s -> a -> s
-set (Lens _ set) s a = set a s
+set (Lens _ put) s a = put a s
 
 -- lenses
 
 personLens :: Lens Student Person
 personLens = Lens _person (\p s -> s { _person = p })
 
-nameLens :: Lens Person String
-nameLens = Lens _name (\n p -> p { _name = n })
+--nameLens :: Lens Person String
+--nameLens = Lens _name (\n p -> p { _name = n })
 
 ageLens :: Lens Person Int
 ageLens = Lens _age (\a p -> p { _age = a })
@@ -48,6 +48,23 @@ streetStudentLens :: Lens Student String
 streetStudentLens = personLens `compose` addressLens `compose` streetLens
 
 
+get :: Person -> String
+get p = _name p
+put :: String -> Person -> Person
+put newname p =  p { _name = newname }
+nameLens = Lens get put
+-- PUTGET:
+-- get ( put newname ( Person name age addr ) ) =
+-- get ( Person newname age addr ) = newname
+-- GETPUT:
+-- put ( get ( Person name age addr ) ) ( Person name age addr ) =
+-- put name ( Person name age addr ) = Person name age addr
+-- PUTPUT:
+-- put name1 ( put name2 ( Person n age addr ) ) =
+-- put name1 ( Person name2 age addr ) = ( Person name2 age addr ) =
+-- put name1 ( Person n age addr )
+
+
 
 main :: IO ()
 main = do
@@ -60,6 +77,9 @@ main = do
     print $ view cityPersonLens p
     print $ view cityPersonLens $ set cityPersonLens p "Worcester"
 
+    -- Address updatetextt without lenses
+    let a2 = a { _street = "456 Maple St" }
+
     let s = Student p "MIT"
     -- with lenses
     print $ view streetStudentLens s
@@ -68,3 +88,6 @@ main = do
     print $ _street (_address (_person s))
     -- set street without lenses
     print $ s {_person = (_person s) {_address = ((_address . _person) s) {_street = "456 Maple"}}}
+
+    print $ view nameLens p
+    print $ set nameLens p "Bart"
