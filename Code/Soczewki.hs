@@ -6,9 +6,10 @@ data Address = Address { _street :: String, _city :: String, _zip :: String }
 data Person = Person { _name :: String, _age :: Int, _address :: Address}
 data Student = Student { _person :: Person, _school :: String }
 
+-- Definicja soczewek
 type Lens' s a = forall f. Functor f => (a -> f a) -> (s -> f s)
 
--- getters
+-- Getters
 getName :: Person -> String
 getName (Person n _ _) = n
 
@@ -37,7 +38,7 @@ getStudentStreet :: Student -> String
 getStudentStreet (Student (Person _ _ (Address s _ _)) _) = s
 
 
--- setters
+-- Setters
 setName :: Person -> String -> Person
 setName (Person _ a ad) n = Person n a ad
 
@@ -65,7 +66,7 @@ setSchool (Student p _) s = Student p s
 setStudentStreet :: Student -> String -> Student
 setStudentStreet (Student (Person n a (Address _ c z)) s) st = Student (Person n a (Address st c z)) s
 
--- lenses
+-- Soczewki
 nameLens :: Functor f => (String -> f String) -> Person -> f Person
 nameLens f p = fmap (\n -> setName p n) (f $ getName p)
 
@@ -93,11 +94,11 @@ schoolLens f s = fmap (\sc -> setSchool s sc) (f $ getSchool s)
 studentStreetLens :: Functor f => (String -> f String) -> Student -> f Student
 studentStreetLens f s = fmap (\st -> setStudentStreet s st) (f $ getStudentStreet s)
 
--- view
+-- Funkcja view
 view :: Lens' s a -> s -> a
 view l s = getConst $ l Const s
 
--- set
+-- Funkcja set
 set :: Lens' s a -> a -> s -> s
 set l a s = runIdentity $ l (\_ -> Identity a) s
 
@@ -105,7 +106,7 @@ set l a s = runIdentity $ l (\_ -> Identity a) s
 main :: IO ()
 main = do
     let s = Student (Person "Homer" 40 (Address "123 Elm St" "Springfield" "12345")) "MIT"
-    -- set street of student's address
+    -- Użycie soczewek do modyfikacji danych
     let s2 = s & (set (personLens . addressLens . streetLens) "123 Oak St")
     let s3 = s & (set studentStreetLens "John St")
     putStrLn $ "Student street: " ++ view studentStreetLens s2
