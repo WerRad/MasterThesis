@@ -10,7 +10,7 @@ apply allow change c s =
   let r = change c s in
   if allow r then r else s
 
-
+-- funkcja przekształcająca funkcję apply w działanie na monadzie
 applySt :: (s->Bool)->(a->s->s)->a->State s a
 applySt allow change x =
   state(\s -> (x, apply allow change x s))
@@ -62,9 +62,11 @@ transform = (map.map) decode
 randWalk :: [String] -> [(Int,Int)]
 randWalk = map (\x -> rwExe x (-3,0))
 
+-- funkcja zliczająca stany końcowe
 zlicz :: Ord a => [a] -> [(a,Int)]
 zlicz xs = map (\x->(head x,length x)) (group $ sort xs)
 
+-- główna funkcja wykonująca spacer losowy i zliczająca stany końcowe
 calcFinalStates dl ile rint = 
   (zlicz . randWalk . transform) (splitRs dl ile rint)
 

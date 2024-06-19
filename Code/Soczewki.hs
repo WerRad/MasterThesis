@@ -101,16 +101,9 @@ view l s = getConst $ l Const s
 set :: Lens' s a -> a -> s -> s
 set l a s = runIdentity $ l (\_ -> Identity a) s
 
--- studentZipLens :: Lens' Student String
--- studentZipLens = personLens . addressLens . zipLens
 
 main :: IO ()
 main = do
-    let p = Person "John" 30  (Address "Elm" "Springfield" "12345")       
-    putStrLn $ "Name: " ++ _name p ++ ", age: " ++ show (_age p)
-    putStrLn $ "Name: " ++ view nameLens p ++ ", age: " ++ show (view ageLens p) ++ ", street: " ++ view (addressLens . streetLens) p
-    let p2 = p & (set nameLens "Alice") & (set ageLens 25) & (set (addressLens . streetLens) "Oak")
-    putStrLn $ "Name: " ++ view nameLens p2 ++ ", age: " ++ show (view ageLens p2) ++ ", street: " ++ view (addressLens . streetLens) p2
     let s = Student (Person "Homer" 40 (Address "123 Elm St" "Springfield" "12345")) "MIT"
     -- set street of student's address
     let s2 = s & (set (personLens . addressLens . streetLens) "123 Oak St")

@@ -1,6 +1,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE UndecidableInstances #-}
 
+-- Typy danych reprezentujące punkt, wektor, koło, linię, trójkąt, prostokąt, kwadrat i elipsę
 data Point = Point { x :: Float, y :: Float } deriving Show
 
 data Vector = Vector { dx :: Float, dy :: Float } deriving Show
@@ -12,11 +13,13 @@ data Rectangle = Rectangle { topLeft :: Point, bottomRight :: Point } deriving S
 data Square = Square { sq_topLeft :: Point, sq_bottomRight :: Point } deriving Show
 data Ellipse = Ellipse { ellip_center :: Point, radiusX :: Float, radiusY :: Float } deriving Show
 
+-- Klasa Shape z metodami getCenter, move i getArea
 class Shape a where
     getCenter :: a -> Point
     move :: Vector -> a -> a
     getArea :: a -> Float
 
+-- Instancje klasy Shape dla typów Point, Circle, Line, Triangle, Rectangle, Square i Ellipse
 instance Shape Point where
     getCenter = id
     move v (Point x y) = Point (x + dx v) (y + dy v)
@@ -52,7 +55,7 @@ instance Shape Ellipse where
     move v (Ellipse p rx ry) = Ellipse (Point (x p + dx v) (y p + dy v)) rx ry
     getArea (Ellipse _ rx ry) = pi * rx * ry
 
-
+-- Klasy EllipseLike i RectangleLike rozszerzające klasę Shape
 class Shape a => EllipseLike a where
     centerToString :: a -> String
     centerToString a = "Ellipse center: " ++ show (getCenter a)
@@ -63,6 +66,7 @@ class Shape a => RectangleLike a where
     getWidth :: a -> Float
     getHeight :: a -> Float
 
+-- Instancje klas EllipseLike i RectangleLike dla typów Ellipse, Circle, Point, Rectangle i Square
 instance EllipseLike Ellipse where
     getRadiusX = radiusX
     getRadiusY = radiusY
@@ -88,6 +92,7 @@ instance RectangleLike Point where
     getWidth _ = 0
     getHeight _ = 0
 
+-- Klasa PointLike rozszerzająca klasy EllipseLike i RectangleLike
 class (RectangleLike a, EllipseLike a) => PointLike a where
     pointToString :: a -> String
     pointToString a = 
@@ -99,7 +104,8 @@ class (RectangleLike a, EllipseLike a) => PointLike a where
 
 instance PointLike Point
 
-printRectangle :: (Shape a, RectangleLike a) => a -> IO ()
+-- Funkcja printRectangle wypisująca szerokość, wysokość i pole prostokąta
+printRectangle :: RectangleLike a => a -> IO ()
 printRectangle a = do
     putStrLn $ "Width: " ++ show (getWidth a)
     putStrLn $ "Height: " ++ show (getHeight a)
@@ -111,13 +117,9 @@ main = do
     let p1 = Point 1 2
     let p2 = Point 3 4
     let p3 = Point 5 2
-    let p4 = Point 7 8
-    let p5 = Point 9 10
     let c = Circle p1 3
-    let l = Line p1  p2
     let t = Triangle p1 p2 p3
     let r = Rectangle p1 p2
-    let s = Square p1 p2
     let e = Ellipse p1 3 4
     putStrLn $ pointToString p1
     putStrLn $ show $ getArea t
